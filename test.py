@@ -1,8 +1,12 @@
+from math import sqrt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import random
 import numpy as np
 from matplotlib.backend_bases import MouseButton
+
+target_x = 0
+target_y = 0
 
 num_particles = 50
 dimensions = 2
@@ -27,7 +31,8 @@ global_best = np.array([0, -10])
 # Evaluate fitness
 def evaluate(particle):
     x, y = particle
-    return (x-2)**2 + (y - 3)**2
+    # return (x-2)**2 + (y - 3)**2
+    return sqrt((x - target_x)**2 + (y - target_y)**2)
 
 # Initialize plot
 fig, ax = plt.subplots()
@@ -62,19 +67,23 @@ def animate(i):
         particles[j] += velocities[j]
 
         # Check bounds
-        particles[j] = np.clip(particles[j], -10, 10)
+        particles[j] = np.clip(particles[j], -100, 100)
 
     # Update plot
     particle_handles.set_data(particles[:, 0], particles[:, 1])
 
     return particle_handles,
 
-ani = animation.FuncAnimation(fig, animate, frames=iters, interval=100)
+ani = animation.FuncAnimation(fig, animate, frames=iters, interval=40)
 
-# def on_click(event):
-#     if event.button is MouseButton.LEFT:
-#         print(event.xdata,event.ydata)
+def on_click(event):
+    global target_x,target_y
+    if event.button is MouseButton.LEFT:
+        print(f"Target is at: x={event.xdata},y={event.ydata}")
+        target_x = event.xdata
+        target_y = event.ydata
+        
 
+plt.connect('button_press_event', on_click)
 
-# plt.connect('button_press_event', on_click)
 plt.show()
