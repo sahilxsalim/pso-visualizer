@@ -5,6 +5,11 @@ import random
 import numpy as np
 from matplotlib.backend_bases import MouseButton
 import matplotlib
+from collections import deque
+
+# Initialize trail history 
+trail_history = deque(maxlen=100) 
+
 target_x = 0
 target_y = 0
 
@@ -32,7 +37,7 @@ global_best = np.array([0, -10])
 particle_trails = []
 
 # Maximum trail length (adjust as needed)
-max_trail_length = 500
+max_trail_length = 50
 
 # Evaluate fitness
 def evaluate(particle):
@@ -82,28 +87,30 @@ def animate(i):
     particle_trails.append(particles.copy())
 
     # Limit the length of the trails
-    while len(particle_trails) > max_trail_length:
-        del particle_trails[0]  # Remove the oldest positions
-
+    # if len(particle_trails) > max_trail_length:
+    #     print('d')
+        # while len(particle_trails):
+        #     particle_trails.pop()  # Remove the oldest positions
+    while len(particle_trails)>max_trail_length:
+            particle_trails.pop(0)  # Remove the oldest positions
     # Update plot
     particle_handles.set_data(particles[:, 0], particles[:, 1])
 
     # Plot particle trails as lines
     if len(particle_trails) > 1:
-        cmap = plt.get_cmap('Reds')
+        # print(len(particle_trails))
+        cmap = plt.get_cmap('RdYlGn')
+        # Append current trails
+        # trail_history.append(particles.copy())  
         for j in range(num_particles):
-            # Only plot the last 5 trail positions
-            trail = np.array(particle_trails)[-50:, j, :]
-            
+            # Only plot the last 50 trail positions
+            trail = np.array(particle_trails)[10:, j, :]
             # Fade color
-            cmap = plt.get_cmap('Reds') 
+            cmap = plt.get_cmap('RdYlGn') 
             norm = matplotlib.colors.Normalize(vmin=0, vmax=max_trail_length)
             color = cmap(norm(len(particle_trails)))
             
             ax.plot(trail[:, 0], trail[:, 1], color=color)
-        # for j in range(num_particles):
-        #     trail = np.array(particle_trails)[:, j, :]  # Get the trail for particle j
-        #     ax.plot(trail[:, 0], trail[:, 1], 'r-', alpha=0.2)  # Plot the trail
 
     return particle_handles,
 
@@ -115,6 +122,7 @@ def on_click(event):
         print(f"Target is at: x={event.xdata},y={event.ydata}")
         target_x = event.xdata
         target_y = event.ydata
+        particle_trails.clear()
 
 plt.connect('button_press_event', on_click)
 
