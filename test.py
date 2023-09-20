@@ -57,6 +57,7 @@ def animate(i):
     ax.cla()
     ax.set_xlim(x_lim) 
     ax.set_ylim(y_lim)
+
     # Update inertia weight (linearly decreasing)
     w = w_max - (w_max - w_min) * i / iters
 
@@ -95,7 +96,9 @@ def animate(i):
             particle_trails.pop(0)  # Remove the oldest positions
     # Update plot
     particle_handles.set_data(particles[:, 0], particles[:, 1])
-
+    ax.plot(target_x, target_y, 'xk') # Add target marker
+    
+    ax.plot(global_best[0], global_best[1], 'bo')
     # Plot particle trails as lines
     if len(particle_trails) > 1:
         # print(len(particle_trails))
@@ -125,5 +128,13 @@ def on_click(event):
         particle_trails.clear()
 
 plt.connect('button_press_event', on_click)
+# Update plot
+# 
+particle_handles.set_data(particles[:, 0], particles[:, 1]) 
 
+# Plot global best
+ax.plot(global_best[0], global_best[1], 'bo', markersize=10)
+
+# Plot target 
+ax.plot(target_x, target_y, 'xk', markersize=10)
 plt.show()
