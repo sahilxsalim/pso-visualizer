@@ -55,9 +55,19 @@ def animate(i):
     y_lim = ax.get_ylim()
     global global_best
     ax.cla()
+    ax.set_title('Particle Swarm Optimization Visualization')
+
     ax.set_xlim(x_lim) 
     ax.set_ylim(y_lim)
-
+    best_fitness = evaluate(global_best) 
+  
+    # ax.text(0.05, 0.9, 'Iter: %d' % i, transform=ax.transAxes)  
+    ax.text(0.05, 0.85, 'Target: (%.4f, %.4f)' % (target_x, target_y), 
+        transform=ax.transAxes)
+    ax.text(0.05, 0.8, 'Best Fitness: %.4f' % best_fitness, 
+          transform=ax.transAxes)
+    ax.text(0.05, 0.75, 'Global Best: (%.4f, %.4f)' % (global_best[0],global_best[1]), 
+          transform=ax.transAxes)
     # Update inertia weight (linearly decreasing)
     w = w_max - (w_max - w_min) * i / iters
 
@@ -104,7 +114,7 @@ def animate(i):
         # print(len(particle_trails))
         cmap = plt.get_cmap('RdYlGn')
         # Append current trails
-        # trail_history.append(particles.copy())  
+        trail_history.append(particles.copy())  
         for j in range(num_particles):
             # Only plot the last 50 trail positions
             trail = np.array(particle_trails)[10:, j, :]
@@ -114,6 +124,7 @@ def animate(i):
             color = cmap(norm(len(particle_trails)))
             
             ax.plot(trail[:, 0], trail[:, 1], color=color)
+
 
     return particle_handles,
 
@@ -134,7 +145,6 @@ particle_handles.set_data(particles[:, 0], particles[:, 1])
 
 # Plot global best
 ax.plot(global_best[0], global_best[1], 'bo', markersize=10)
-
 # Plot target 
 ax.plot(target_x, target_y, 'xk', markersize=10)
 plt.show()
