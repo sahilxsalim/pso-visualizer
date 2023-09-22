@@ -17,6 +17,12 @@ num_particles = 50
 dimensions = 2
 iters = 1000
 found_iter = -1
+# Initialize a list to store error values for each iteration
+error_history = []
+
+# Function to calculate the error between global best and target
+def calculate_error(global_best):
+    return sqrt((global_best[0] - target_x) ** 2 + (global_best[1] - target_y) ** 2)
 
 # PSO parameters
 w_max = 0.9  # Maximum inertia weight
@@ -79,6 +85,9 @@ def animate(i):
     ax.text(0.05, 0.75, 'Global Best: (%.4f, %.4f)' % (global_best[0],global_best[1]), 
           transform=ax.transAxes)
     # Update particle velocities and positions
+    # Calculate the error and store it in the history
+    error = calculate_error(global_best)
+    error_history.append(error)
     for j in range(num_particles):
         # Update local best
         if evaluate(particles[j]) < evaluate(local_best[j]):
@@ -154,6 +163,22 @@ particle_handles.set_data(particles[:, 0], particles[:, 1])
 
 # Plot global best
 ax.plot(global_best[0], global_best[1], 'bo', markersize=10)
-# Plot target
+# Plot target 
 ax.plot(target_x, target_y, 'xk', markersize=10)
+# Create a new figure for the error plot
+fig_error, ax_error = plt.subplots()
+ax_error.set_title('Error between Global Best and Target')
+ax_error.set_xlabel('Iteration')
+ax_error.set_ylabel('Error')
+error_line, = ax_error.plot([], [], 'b-')
+
+def animate_error(i):
+    # Update the error plot
+    error_line.set_data(range(len(error_history)), error_history)
+    ax_error.relim()
+    ax_error.autoscale_view()
+
+# Create an animation for the error plot
+ani_error = animation.FuncAnimation(fig_error, animate_error, frames=iters, interval=40)
+
 plt.show()
