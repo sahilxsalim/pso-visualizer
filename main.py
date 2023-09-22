@@ -15,7 +15,8 @@ target_y = 0
 
 num_particles = 50
 dimensions = 2
-iters = 100
+iters = 1000
+found_iter = -1
 
 # PSO parameters
 w_max = 0.9  # Maximum inertia weight
@@ -51,26 +52,32 @@ ax.set_ylim(-2, 2)
 particle_handles, = ax.plot(particles[:, 0], particles[:, 1], 'r_')
 
 def animate(i):
+    global global_best
     x_lim = ax.get_xlim() 
     y_lim = ax.get_ylim()
-    global global_best
     ax.cla()
     ax.set_title('Particle Swarm Optimization Visualization')
 
     ax.set_xlim(x_lim) 
     ax.set_ylim(y_lim)
     best_fitness = evaluate(global_best) 
-  
-    # ax.text(0.05, 0.9, 'Iter: %d' % i, transform=ax.transAxes)  
+    
+
+    # Update inertia weight (linearly decreasing)
+    w = w_max - (w_max - w_min) * i / iters
+    if best_fitness<0.001:
+        global found_iter
+        found_iter = i if found_iter==-1 else found_iter
+        print("Found at ",found_iter)
+        i = found_iter
+        ax.text(0.05, 0.70, 'Found at Iteration: %d' % found_iter, transform=ax.transAxes)  
+    ax.text(0.05, 0.9, 'Iter: %d' % i, transform=ax.transAxes)  
     ax.text(0.05, 0.85, 'Target: (%.4f, %.4f)' % (target_x, target_y), 
         transform=ax.transAxes)
     ax.text(0.05, 0.8, 'Best Fitness: %.4f' % best_fitness, 
           transform=ax.transAxes)
     ax.text(0.05, 0.75, 'Global Best: (%.4f, %.4f)' % (global_best[0],global_best[1]), 
           transform=ax.transAxes)
-    # Update inertia weight (linearly decreasing)
-    w = w_max - (w_max - w_min) * i / iters
-
     # Update particle velocities and positions
     for j in range(num_particles):
         # Update local best
@@ -131,12 +138,14 @@ def animate(i):
 ani = animation.FuncAnimation(fig, animate, frames=iters, interval=40)
 
 def on_click(event):
-    global target_x, target_y
+    global target_x, target_y, found_iter
     if event.button is MouseButton.LEFT:
         print(f"Target is at: x={event.xdata},y={event.ydata}")
         target_x = event.xdata
         target_y = event.ydata
         particle_trails.clear()
+        found_iter = -1
+        ani.frame_seq = ani.new_frame_seq() 
 
 plt.connect('button_press_event', on_click)
 # Update plot
