@@ -118,8 +118,8 @@ def animate(i):
     #     print('d')
         # while len(particle_trails):
         #     particle_trails.pop()  # Remove the oldest positions
-    while len(particle_trails)>max_trail_length:
-            particle_trails.pop(0)  # Remove the oldest positions
+    # while len(particle_trails)>max_trail_length:
+    #         particle_trails.pop(0)  # Remove the oldest positions
     # Update plot
     particle_handles.set_data(particles[:, 0], particles[:, 1])
     ax.plot(target_x, target_y, 'xk') # Add target marker
@@ -147,7 +147,7 @@ def animate(i):
 ani = animation.FuncAnimation(fig, animate, frames=iters, interval=40)
 
 def on_click(event):
-    global target_x, target_y, found_iter
+    global target_x, target_y, found_iter,particles,velocities,global_best
     if event.button is MouseButton.LEFT:
         print(f"Target is at: x={event.xdata},y={event.ydata}")
         target_x = event.xdata
@@ -155,6 +155,9 @@ def on_click(event):
         particle_trails.clear()
         found_iter = -1
         ani.frame_seq = ani.new_frame_seq() 
+        particles = np.random.uniform(-2, 2, size=(num_particles, dimensions))
+        velocities = np.zeros((num_particles, dimensions))
+        global_best = particles[0].copy()
 
 plt.connect('button_press_event', on_click)
 # Update plot
@@ -162,7 +165,7 @@ plt.connect('button_press_event', on_click)
 particle_handles.set_data(particles[:, 0], particles[:, 1]) 
 
 # Plot global best
-ax.plot(global_best[0], global_best[1], 'bo', markersize=10)
+# ax.plot(global_best[0], global_best[1], 'bo', markersize=10)
 # Plot target 
 ax.plot(target_x, target_y, 'xk', markersize=10)
 # Create a new figure for the error plot
