@@ -154,6 +154,6 @@ particle_handles.set_data(particles[:, 0], particles[:, 1])
 
 # Plot global best
 ax.plot(global_best[0], global_best[1], 'bo', markersize=10)
-# Plot target 
+# Plot target
 ax.plot(target_x, target_y, 'xk', markersize=10)
 plt.show()
