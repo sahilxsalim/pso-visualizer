@@ -1,4 +1,6 @@
 from math import sqrt
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import random
@@ -6,9 +8,11 @@ import numpy as np
 from matplotlib.backend_bases import MouseButton
 import matplotlib
 from collections import deque
+import tkinter as tk
+from tkinter import ttk
 
-# Initialize trail history 
-trail_history = deque(maxlen=100) 
+# Initialize trail history
+trail_history = deque(maxlen=100)
 
 target_x = 0
 target_y = 0
@@ -24,7 +28,7 @@ error_history = []
 def calculate_error(global_best):
     return sqrt((global_best[0] - target_x) ** 2 + (global_best[1] - target_y) ** 2)
 
-# PSO parameters
+# PSO parameters (initial values)
 w_max = 0.9  # Maximum inertia weight
 w_min = 0.4  # Minimum inertia weight
 c1 = 2      # Cognitive (particle)
@@ -56,6 +60,51 @@ fig, ax = plt.subplots()
 ax.set_xlim(-2, 2)
 ax.set_ylim(-2, 2)
 particle_handles, = ax.plot(particles[:, 0], particles[:, 1], 'r_')
+
+# Initialize Tkinter window
+root = tk.Tk()
+root.title("PSO Parameters")
+
+# Function to update PSO parameters
+def update_parameters():
+    global w_max, w_min, c1, c2, num_particles
+    w_max = float(w_max_entry.get())
+    w_min = float(w_min_entry.get())
+    c1 = float(c1_entry.get())
+    c2 = float(c2_entry.get())
+    num_particles = int(num_particles_entry.get())
+
+# Label and entry widgets for PSO parameters
+param_frame = ttk.Frame(root)
+param_frame.pack()
+
+ttk.Label(param_frame, text="Number of Particles").grid(row=0, column=0)
+num_particles_entry = ttk.Entry(param_frame)
+num_particles_entry.grid(row=0, column=1)
+num_particles_entry.insert(0, str(num_particles))
+
+ttk.Label(param_frame, text="Max Inertia Weight (w_max):").grid(row=1, column=0)
+w_max_entry = ttk.Entry(param_frame)
+w_max_entry.grid(row=1, column=1)
+w_max_entry.insert(0, str(w_max))
+
+ttk.Label(param_frame, text="Min Inertia Weight (w_min):").grid(row=2, column=0)
+w_min_entry = ttk.Entry(param_frame)
+w_min_entry.grid(row=2, column=1)
+w_min_entry.insert(0, str(w_min))
+
+ttk.Label(param_frame, text="Cognitive Coefficient (c1):").grid(row=3, column=0)
+c1_entry = ttk.Entry(param_frame)
+c1_entry.grid(row=3, column=1)
+c1_entry.insert(0, str(c1))
+
+ttk.Label(param_frame, text="Social Coefficient (c2):").grid(row=4, column=0)
+c2_entry = ttk.Entry(param_frame)
+c2_entry.grid(row=4, column=1)
+c2_entry.insert(0, str(c2))
+
+update_button = ttk.Button(param_frame, text="Update Parameters", command=update_parameters)
+update_button.grid(row=5, columnspan=2)
 
 def animate(i):
     global global_best
@@ -144,17 +193,19 @@ def animate(i):
 
     return particle_handles,
 
+# Start the animation
 ani = animation.FuncAnimation(fig, animate, frames=iters, interval=40)
 
+# Function to handle button click event
 def on_click(event):
-    global target_x, target_y, found_iter,particles,velocities,global_best
+    global target_x, target_y, found_iter, particles, velocities, global_best
     if event.button is MouseButton.LEFT:
         print(f"Target is at: x={event.xdata},y={event.ydata}")
         target_x = event.xdata
         target_y = event.ydata
         particle_trails.clear()
         found_iter = -1
-        ani.frame_seq = ani.new_frame_seq() 
+        ani.frame_seq = ani.new_frame_seq()
         particles = np.random.uniform(-2, 2, size=(num_particles, dimensions))
         velocities = np.zeros((num_particles, dimensions))
         global_best = particles[0].copy()
@@ -184,4 +235,7 @@ def animate_error(i):
 # Create an animation for the error plot
 ani_error = animation.FuncAnimation(fig_error, animate_error, frames=iters, interval=40)
 
+# Rest of your code remains the same
+
 plt.show()
+root.mainloop()
