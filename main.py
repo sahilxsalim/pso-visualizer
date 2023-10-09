@@ -105,7 +105,7 @@ c2_entry.insert(0, str(c2))
 
 update_button = ttk.Button(param_frame, text="Update Parameters", command=update_parameters)
 update_button.grid(row=5, columnspan=2)
-
+ 
 def animate(i):
     global global_best
     x_lim = ax.get_xlim() 
